@@ -1,0 +1,23 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:1607
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Install ASP.NET Core Runtime
+ENV ASPNETCORE_VERSION 2.1.6
+
+RUN Invoke-WebRequest -OutFile aspnetcore.zip https://dotnetcli.blob.core.windows.net/dotnet/aspnetcore/Runtime/$Env:ASPNETCORE_VERSION/aspnetcore-runtime-$Env:ASPNETCORE_VERSION-win-x86.zip; `
+    $aspnetcore_sha512 = '5d84cf72f6a500e276d3d8c10e138bc180eda50f29603c3ca0daf8b4f686b6ee0eaaa8b1a928790dfebddaf0ea2e863dd95f86a566a5c98346953c848641ce23'; `
+    if ((Get-FileHash aspnetcore.zip -Algorithm sha512).Hash -ne $aspnetcore_sha512) { `
+        Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
+        exit 1; `
+    }; `
+    `
+    Expand-Archive aspnetcore.zip -DestinationPath  "${env:ProgramFiles(x86)}\dotnet"; `
+    Remove-Item -Force aspnetcore.zip
+RUN setx /M PATH $($Env:PATH + ';' + "${Env:ProgramFiles(x86)}" + '\dotnet')
+
+# Configure web servers to bind to port 80 when present
+ENV ASPNETCORE_URLS=http://+:80 `
+    # Enable detection of running in a container
+    DOTNET_RUNNING_IN_CONTAINERS=true
