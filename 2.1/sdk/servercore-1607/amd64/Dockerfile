@@ -41,10 +41,6 @@ ENV ASPNETCORE_URLS=http://+:80 `
     # Skip extraction of XML docs - generally not useful within an image/container - helps perfomance
     NUGET_XMLDOC_MODE=skip
 
-# RUN dir "${Env:ProgramFiles(x86)}\dotnet"
-
-# RUN "${Env:ProgramFiles(x86)}\dotnet\dotnet.exe --help"
-# RUN Write-Host "$Env:PATH"
 # Trigger first run experience by running arbitrary cmd to populate local package cache
-# RUN & "${Env:ProgramFiles(x86)}\dotnet\dotnet.exe" help
+RUN & "${Env:ProgramFiles(x86)}\dotnet\dotnet.exe" help
 RUN dotnet help
