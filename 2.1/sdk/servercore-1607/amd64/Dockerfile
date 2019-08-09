@@ -20,18 +20,6 @@ RUN Invoke-WebRequest -OutFile dotnet.zip https://dotnetcli.blob.core.windows.ne
 
 RUN setx /M PATH $($Env:PATH + ';' + $Env:ProgramFiles + '\dotnet')
 
-RUN Invoke-WebRequest -OutFile dotnet.zip https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$Env:DOTNET_SDK_VERSION/dotnet-sdk-$Env:DOTNET_SDK_VERSION-win-x86.zip; `
-    $dotnet_sha512 = 'b388f7f73606c3d498723442f8cc7435fee0af700d9336448848344be467ec2b1f2e7e52c409369bc85415af5215d7205125ae37e49743504ece12270707f9e0'; `
-    if ((Get-FileHash dotnet.zip -Algorithm sha512).Hash -ne $dotnet_sha512) { `
-        Write-Host 'CHECKSUM VERIFICATION FAILED!'; `
-        exit 1; `
-    }; `
-    `
-    Expand-Archive dotnet.zip -DestinationPath "${env:ProgramFiles(x86)}\dotnet"; `
-    Remove-Item -Force dotnet.zip
-
-RUN setx /M PATH $($Env:PATH + "${Env:ProgramFiles(x86)}" + '\dotnet')
-
 # Configure Kestrel web server to bind to port 80 when present
 ENV ASPNETCORE_URLS=http://+:80 `
     # Enable detection of running in a container
@@ -42,5 +30,5 @@ ENV ASPNETCORE_URLS=http://+:80 `
     NUGET_XMLDOC_MODE=skip
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
-RUN & "${Env:ProgramFiles(x86)}\dotnet\dotnet.exe" help
+RUN & "${Env:ProgramFiles}\dotnet\dotnet.exe" help
 RUN dotnet help
